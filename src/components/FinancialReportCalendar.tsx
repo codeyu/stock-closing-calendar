@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -30,8 +30,6 @@ const Day: React.FC<DayProps> = ({ classNames, day, onHover, onClick }) => {
       className={`relative flex items-center justify-center ${classNames} ${day.reports && day.reports.length > 0 ? 'cursor-pointer' : ''}`}
       style={{ aspectRatio: '1', borderRadius: 12 }}
       onMouseEnter={() => onHover(day, dayRef)}
-      onMouseLeave={() => onHover(null, null)}
-      onClick={() => day.reports && day.reports.length > 0 && onClick(day)}
       id={`day-${day.day}`}
     >
       <motion.div className="flex flex-col items-center justify-center">
@@ -120,10 +118,30 @@ const FinancialReportCalendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDay, setSelectedDay] = useState<DayType | null>(null);
+  const [hoverCardPosition, setHoverCardPosition] = useState({ top: 0, left: 0 });
+  const [isHoveringCard, setIsHoveringCard] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDayHover = useCallback((day: DayType | null, ref: React.RefObject<HTMLDivElement> | null) => {
-    setHoveredDay(day);
-  }, []);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    if (day && ref && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setHoverCardPosition({
+        top: rect.top - 10,
+        left: rect.left + rect.width / 2
+      });
+      setHoveredDay(day);
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => {
+        if (!isHoveringCard) {
+          setHoveredDay(null);
+        }
+      }, 100);
+    }
+  }, [isHoveringCard]);
 
   const handleDayClick = useCallback((day: DayType) => {
     setSelectedDay(day);
@@ -234,19 +252,29 @@ const FinancialReportCalendar: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
+            className="fixed bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
             style={{
-              top: "0",
-              right: "-280px",
+              top: `${hoverCardPosition.top}px`,
+              left: `${hoverCardPosition.left}px`,
+              transform: 'translate(-50%, -100%)',
+              maxHeight: '200px',
+              overflowY: 'auto'
+            }}
+            onMouseEnter={() => setIsHoveringCard(true)}
+            onMouseLeave={() => {
+              setIsHoveringCard(false);
+              handleDayHover(null, null);
             }}
           >
             <h3 className="text-lg font-bold text-white mb-2">
               {currentYear}年{months[currentMonth]}{hoveredDay.day}日の財務報告
             </h3>
-            <ul>
+            <ul className="space-y-2">
               {hoveredDay.reports.map((report, index) => (
-                <li key={index} className="text-zinc-300 mb-1">
-                  {report.name} - {report.time}
+                <li key={index} className="text-zinc-300">
+                  <p className="font-semibold">{report.name}</p>
+                  <p className="text-sm">業種: {report.industry}</p>
+                  <p className="text-sm">時間: {report.time}</p>
                 </li>
               ))}
             </ul>
