@@ -255,14 +255,13 @@ const FinancialReportCalendar: React.FC = () => {
       <AnimatePresence>
         {hoveredDay && hoveredDay.reports && hoveredDay.reports.length > 0 && !selectedDay && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
             className="absolute bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
             style={{
               top: `${hoverCardPosition.top}px`,
               left: `${hoverCardPosition.left + 10}px`,
-              transform: 'translate(-50%, -100%)',
               maxHeight: '200px',
               overflowY: 'auto'
             }}
