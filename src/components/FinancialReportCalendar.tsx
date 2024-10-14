@@ -129,7 +129,7 @@ const FinancialReportCalendar: React.FC = () => {
       clearTimeout(hoverTimeoutRef.current);
     }
 
-    if (day && ref && ref.current) {
+    if (day && ref && ref.current && day.reports && day.reports.length > 0) {
       const rect = ref.current.getBoundingClientRect();
       const calendarRect = ref.current.closest('.calendar-container')?.getBoundingClientRect();
       if (calendarRect) {
@@ -223,7 +223,7 @@ const FinancialReportCalendar: React.FC = () => {
       <AnimatePresence>
         {selectedDay && (
           <motion.div
-            className="w-full max-w-md absolute left-1/2 top-0"
+            className="w-full max-w-md absolute left-1/2"
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: "25%" }}
             exit={{ opacity: 0, x: "100%" }}
@@ -255,7 +255,7 @@ const FinancialReportCalendar: React.FC = () => {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {hoveredDay && hoveredDay.reports && hoveredDay.reports.length > 0 && !selectedDay && (
+        {hoveredDay && hoveredDay.reports && hoveredDay.reports.length > 0 && (
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
