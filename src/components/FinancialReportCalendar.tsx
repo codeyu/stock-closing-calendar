@@ -30,6 +30,8 @@ const Day: React.FC<DayProps> = ({ classNames, day, onHover, onClick }) => {
       className={`relative flex items-center justify-center ${classNames} ${day.reports && day.reports.length > 0 ? 'cursor-pointer' : ''}`}
       style={{ aspectRatio: '1', borderRadius: 12 }}
       onMouseEnter={() => onHover(day, dayRef)}
+      onMouseLeave={() => onHover(null, null)}
+      onClick={() => day.reports && day.reports.length > 0 && onClick(day)}
       id={`day-${day.day}`}
     >
       <motion.div className="flex flex-col items-center justify-center">
