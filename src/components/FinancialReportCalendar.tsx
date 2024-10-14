@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -13,6 +13,8 @@ interface DayProps {
   day: DayType;
   onHover: (day: DayType | null, ref: React.RefObject<HTMLDivElement> | null) => void;
   onClick: (day: DayType) => void;
+  isSelected: boolean;
+  isToday: boolean;
 }
 
 type DayType = {
@@ -21,13 +23,13 @@ type DayType = {
   reports?: CompanyReport[];
 };
 
-const Day: React.FC<DayProps> = ({ classNames, day, onHover, onClick }) => {
+const Day: React.FC<DayProps> = ({ classNames, day, onHover, onClick, isSelected, isToday }) => {
   const dayRef = useRef<HTMLDivElement>(null);
-
+  const dayClass = isSelected ? 'selected-day' : isToday ? 'today' : '';
   return (
     <motion.div
       ref={dayRef}
-      className={`relative flex items-center justify-center ${classNames} ${day.reports && day.reports.length > 0 ? 'cursor-pointer' : ''}`}
+      className={`relative flex items-center justify-center ${classNames} ${day.reports && day.reports.length > 0 ? 'cursor-pointer' : ''} ${dayClass}`}
       style={{ aspectRatio: '1', borderRadius: 12 }}
       onMouseEnter={() => onHover(day, dayRef)}
       onMouseLeave={() => onHover(null, null)}
@@ -51,10 +53,12 @@ const Day: React.FC<DayProps> = ({ classNames, day, onHover, onClick }) => {
   );
 };
 
-const CalendarGrid: React.FC<{ onHover: (day: DayType | null, ref: React.RefObject<HTMLDivElement> | null) => void; days: DayType[]; onDayClick: (day: DayType) => void }> = ({
+const CalendarGrid: React.FC<{ onHover: (day: DayType | null, ref: React.RefObject<HTMLDivElement> | null) => void; days: DayType[]; onDayClick: (day: DayType) => void; selectedDay: DayType | null; currentDate: Date; }> = ({
   onHover,
   days,
   onDayClick,
+  selectedDay,
+  currentDate,
 }) => {
   return (
     <div className="grid grid-cols-7 gap-2">
@@ -65,6 +69,8 @@ const CalendarGrid: React.FC<{ onHover: (day: DayType | null, ref: React.RefObje
           day={day}
           onHover={onHover}
           onClick={onDayClick}
+          isSelected={selectedDay?.day === day.day}
+          isToday={day.day === currentDate.getDate().toString().padStart(2, '0') && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear()}
         />
       ))}
     </div>
@@ -120,9 +126,21 @@ const FinancialReportCalendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDay, setSelectedDay] = useState<DayType | null>(null);
+  const [currentDate] = useState(new Date());
   const [hoverCardPosition, setHoverCardPosition] = useState({ top: 0, left: 0 });
   const [isHoveringCard, setIsHoveringCard] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const days = useMemo(() => generateDays(currentYear, currentMonth), [currentYear, currentMonth]);
+
+  useEffect(() => {
+    if (currentDate.getMonth() === currentMonth && currentDate.getFullYear() === currentYear) {
+      const todayDay = days.find(day => day.day === currentDate.getDate().toString().padStart(2, '0'));
+      if (todayDay && todayDay.reports && todayDay.reports.length > 0) {
+        setSelectedDay(todayDay);
+      }
+    }
+  }, [currentMonth, currentYear, days, currentDate]);
 
   const handleDayHover = useCallback((day: DayType | null, ref: React.RefObject<HTMLDivElement> | null) => {
     if (hoverTimeoutRef.current) {
@@ -151,7 +169,7 @@ const FinancialReportCalendar: React.FC = () => {
   const handleDayClick = useCallback((day: DayType) => {
     if (day.reports && day.reports.length > 0) {
       setSelectedDay(day);
-      setHoveredDay(null); // 隐藏悬浮卡片
+      setHoveredDay(null);
     }
   }, []);
 
@@ -175,8 +193,6 @@ const FinancialReportCalendar: React.FC = () => {
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
-
-  const days = useMemo(() => generateDays(currentYear, currentMonth), [currentYear, currentMonth]);
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-10 flex justify-center relative calendar-container">
@@ -217,7 +233,7 @@ const FinancialReportCalendar: React.FC = () => {
               </div>
             ))}
           </div>
-          <CalendarGrid onHover={handleDayHover} days={days} onDayClick={handleDayClick} />
+          <CalendarGrid onHover={handleDayHover} days={days} onDayClick={handleDayClick} selectedDay={selectedDay} currentDate={currentDate} />
         </motion.div>
       </div>
       <AnimatePresence>
@@ -229,7 +245,7 @@ const FinancialReportCalendar: React.FC = () => {
             exit={{ opacity: 0, x: "100%" }}
             transition={{ duration: 0.3 }}
           >
-            <div className="bg-zinc-800 rounded-lg p-4 ml-8">
+            <div className="bg-zinc-800 rounded-lg p-4 ml-8 border border-gray-600">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-white">
                   {currentYear}年{months[currentMonth]}{selectedDay.day}日の財務報告
@@ -260,7 +276,7 @@ const FinancialReportCalendar: React.FC = () => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
-            className="absolute bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
+            className="absolute bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10 tips-today"
             style={{
               top: `${hoverCardPosition.top}px`,
               left: `${hoverCardPosition.left + 10}px`,

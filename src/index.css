@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes borderRotate {
+    0% {
+      border-color: #ff00ff;
+    }
+    25% {
+      border-color: #00ffff;
+    }
+    50% {
+      border-color: #ffff00;
+    }
+    75% {
+      border-color: #00ff00;
+    }
+    100% {
+      border-color: #8a2be2;
+    }
+  }
+  
+  .selected-day {
+    border: 2px solid transparent;
+    animation: borderRotate 2s linear infinite;
+    animation-fill-mode: forwards;
+  }
+  
+  .selected-day::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 14px;
+    background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #00ff00, #8a2be2);
+    background-size: 400% 400%;
+    z-index: -1;
+    filter: blur(3px);
+    animation: borderRotate 2s linear infinite;
+  }
+
+  .today {
+    border: 2px solid #8a2be2;
+  }
+  .tips-today {
+    border: 2px solid #8a2be2;
+  }
