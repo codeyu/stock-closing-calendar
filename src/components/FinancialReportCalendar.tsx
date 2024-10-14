@@ -129,10 +129,13 @@ const FinancialReportCalendar: React.FC = () => {
 
     if (day && ref && ref.current) {
       const rect = ref.current.getBoundingClientRect();
-      setHoverCardPosition({
-        top: rect.top,
-        left: rect.left + rect.width / 2
-      });
+      const calendarRect = ref.current.closest('.calendar-container')?.getBoundingClientRect();
+      if (calendarRect) {
+        setHoverCardPosition({
+          top: rect.top - calendarRect.top,
+          left: rect.right - calendarRect.left
+        });
+      }
       setHoveredDay(day);
     } else {
       hoverTimeoutRef.current = setTimeout(() => {
@@ -174,7 +177,7 @@ const FinancialReportCalendar: React.FC = () => {
   const days = useMemo(() => generateDays(currentYear, currentMonth), [currentYear, currentMonth]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-10 flex justify-center relative">
+    <div className="w-full max-w-4xl mx-auto px-4 py-10 flex justify-center relative calendar-container">
       <div className="w-full flex justify-center">
         <motion.div
           className="w-full max-w-md"
@@ -255,10 +258,10 @@ const FinancialReportCalendar: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="fixed bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
+            className="absolute bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
             style={{
-              top: `${hoverCardPosition.top - 10}px`, // 向上偏移10px，以确保不覆盖日期
-              left: `${hoverCardPosition.left}px`,
+              top: `${hoverCardPosition.top}px`,
+              left: `${hoverCardPosition.left + 10}px`,
               transform: 'translate(-50%, -100%)',
               maxHeight: '200px',
               overflowY: 'auto'
