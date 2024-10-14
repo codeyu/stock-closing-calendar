@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -130,7 +130,7 @@ const FinancialReportCalendar: React.FC = () => {
     if (day && ref && ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setHoverCardPosition({
-        top: rect.top - 10,
+        top: rect.top,
         left: rect.left + rect.width / 2
       });
       setHoveredDay(day);
@@ -144,7 +144,10 @@ const FinancialReportCalendar: React.FC = () => {
   }, [isHoveringCard]);
 
   const handleDayClick = useCallback((day: DayType) => {
-    setSelectedDay(day);
+    if (day.reports && day.reports.length > 0) {
+      setSelectedDay(day);
+      setHoveredDay(null); // 隐藏悬浮卡片
+    }
   }, []);
 
   const months = [
@@ -152,8 +155,8 @@ const FinancialReportCalendar: React.FC = () => {
     "7月", "8月", "9月", "10月", "11月", "12月"
   ];
 
-  const changeMonth = (increment: number) => {
-    let newMonth = currentMonth + increment;
+  const changeMonth = (delta: number) => {
+    let newMonth = currentMonth + delta;
     let newYear = currentYear;
 
     if (newMonth > 11) {
@@ -254,7 +257,7 @@ const FinancialReportCalendar: React.FC = () => {
             exit={{ opacity: 0, y: 10 }}
             className="fixed bg-zinc-800 rounded-lg p-4 shadow-lg w-64 z-10"
             style={{
-              top: `${hoverCardPosition.top}px`,
+              top: `${hoverCardPosition.top - 10}px`, // 向上偏移10px，以确保不覆盖日期
               left: `${hoverCardPosition.left}px`,
               transform: 'translate(-50%, -100%)',
               maxHeight: '200px',
