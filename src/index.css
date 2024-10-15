@@ -47,3 +47,58 @@
   .tips-today {
     border: 2px solid #8a2be2;
   }
+
+  .wthr_base {
+    min-width: 90px;
+    white-space: nowrap;
+    text-align: left;
+    height: 22px;
+    }
+    
+    .wthr {
+    display: inline-block;
+    margin: 0;
+    }
+    
+    .wthr::before {
+    content: none;
+    }
+   .wthr::after{
+    position: relative;
+    content: " ";
+    width: 19px;
+    height: 19px;
+    top: 5px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0px 30px 0px 0px;
+    z-index: 0;
+    display: inline-block;
+    }
+    .wthr_fine::after {
+    background: url(../public/img/icn_wthr_fine.svg) no-repeat 0 0;
+    background-size: 100%;
+    top: -3px;
+    }
+    .wthr_rain::after {
+    background: url(../public/img/icn_wthr_rain.svg) no-repeat 0 0;
+    background-size: 100%;
+    }
+    .wthr_clud::after {
+    background: url(../public/img/icn_wthr_clud.svg) no-repeat 0 0;
+    background-size: 100%;
+    }
+    .wthr_empt::after {
+    background: url(../public/img/icn_wthr_empt.svg) no-repeat 0 0;
+    background-size: 100%;
+    }
+    
+    .wthr_calculate::after {
+    content:"計算中";
+    display: inline-block;
+    width: 50px;
+    border:2px solid #e7e2ff;
+    border-radius: 4px;
+    padding: 2px;
+    }

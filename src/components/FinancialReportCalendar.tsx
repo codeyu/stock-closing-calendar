@@ -2,10 +2,23 @@ import React, { useState, useMemo, useRef, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
+interface CalendarData {
+  date: string;
+  count: string;
+  details: CompanyReport[];
+}
+
 interface CompanyReport {
-  name: string;
-  industry: string;
-  time: string;
+  銘柄名: string;
+  コード: string;
+  発表日: string;
+  決算期: string;
+  区分: string;
+  通期予想: string;
+  実績: string;
+  進捗率: string;
+  決算短信: string;
+  発表状態: string;
 }
 
 interface DayProps {
@@ -77,7 +90,7 @@ const CalendarGrid: React.FC<{ onHover: (day: DayType | null, ref: React.RefObje
   );
 };
 
-const generateDays = (year: number, month: number): DayType[] => {
+const generateDays = (year: number, month: number, calendarData: CalendarData[]): DayType[] => {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
@@ -95,17 +108,12 @@ const generateDays = (year: number, month: number): DayType[] => {
 
   // 当月の日付を追加
   for (let i = 1; i <= daysInMonth; i++) {
-    const hasReports = Math.random() < 0.3;
-    const reportCount = hasReports ? Math.floor(Math.random() * 5) + 1 : 0;
-    const industry = ["鉄鋼", "医薬", "航空", "自動車", "電機", "化学", "金融"][Math.floor(Math.random() * 7)];
+    const currentDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+    const dayData = calendarData.find(data => data.date === currentDate);
     days.push({
       day: i.toString().padStart(2, '0'),
       classNames: "bg-[#1e1e1e]",
-      reports: hasReports ? Array(reportCount).fill(null).map((_, index) => ({
-        name: `${industry}企業${index + 1}`,
-        industry,
-        time: `${13 + index}:00`,
-      })) : undefined,
+      reports: dayData ? dayData.details : undefined,
     });
   }
 
@@ -120,8 +128,28 @@ const generateDays = (year: number, month: number): DayType[] => {
 
   return days;
 };
-
+const ReportItem: React.FC<{ report: CompanyReport }> = ({ report }) => {
+  return (
+    <div className="mb-4 p-3 bg-zinc-700 rounded-lg">
+      <h4 className="text-lg font-semibold text-white mb-2">{report.銘柄名}</h4>
+      <p className="text-zinc-300">コード: {report.コード}</p>
+      <p className="text-zinc-300">決算期: {report.決算期}</p>
+      <p className="text-zinc-300">区分: {report.区分}</p>
+      <p className="text-zinc-300">通期予想: {report.通期予想}</p>
+      <p className="text-zinc-300">
+        実績: <span dangerouslySetInnerHTML={{ __html: report.実績 }} />
+      </p>
+      <p className="text-zinc-300">進捗率: {report.進捗率}%</p>
+      {report.決算短信 && (
+        <a href={report.決算短信} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+          決算短信
+        </a>
+      )}
+    </div>
+  );
+};
 const FinancialReportCalendar: React.FC = () => {
+  const [calendarData, setCalendarData] = useState<CalendarData[]>([]);
   const [hoveredDay, setHoveredDay] = useState<DayType | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -131,8 +159,14 @@ const FinancialReportCalendar: React.FC = () => {
   const [isHoveringCard, setIsHoveringCard] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const days = useMemo(() => generateDays(currentYear, currentMonth), [currentYear, currentMonth]);
-
+  useEffect(() => {
+    fetch('/data/calendar_202410.json')
+      .then(response => response.json())
+      .then(data => setCalendarData(Array.isArray(data) ? data : [data]))
+      .catch(error => console.error('Error loading calendar data:', error));
+  }, []);
+  const days = useMemo(() => generateDays(currentYear, currentMonth, calendarData), [currentYear, currentMonth, calendarData]);
+  
   useEffect(() => {
     if (currentDate.getMonth() === currentMonth && currentDate.getFullYear() === currentYear) {
       const todayDay = days.find(day => day.day === currentDate.getDate().toString().padStart(2, '0'));
@@ -237,7 +271,7 @@ const FinancialReportCalendar: React.FC = () => {
         </motion.div>
       </div>
       <AnimatePresence>
-        {selectedDay && (
+        {selectedDay && selectedDay.reports && selectedDay.reports.length > 0 && (
           <motion.div
             className="w-full max-w-md absolute left-1/2"
             initial={{ opacity: 0, x: "100%" }}
@@ -258,12 +292,8 @@ const FinancialReportCalendar: React.FC = () => {
                 </button>
               </div>
               <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
-                {selectedDay.reports?.map((report, index) => (
-                  <div key={index} className="mb-4 p-3 bg-zinc-700 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">{report.name}</h4>
-                    <p className="text-zinc-300">業種: {report.industry}</p>
-                    <p className="text-zinc-300">発表時間: {report.time}</p>
-                  </div>
+                {selectedDay.reports.map((report, index) => (
+                  <ReportItem key={index} report={report} />
                 ))}
               </div>
             </div>
@@ -289,15 +319,11 @@ const FinancialReportCalendar: React.FC = () => {
               handleDayHover(null, null);
             }}
           >
-            <h3 className="text-lg font-bold text-white mb-2">
-              {currentYear}年{months[currentMonth]}{hoveredDay.day}日の財務報告
-            </h3>
             <ul className="space-y-2">
               {hoveredDay.reports.map((report, index) => (
                 <li key={index} className="text-zinc-300">
-                  <p className="font-semibold">{report.name}</p>
-                  <p className="text-sm">業種: {report.industry}</p>
-                  <p className="text-sm">時間: {report.time}</p>
+                  <p className="font-semibold">{report.銘柄名}（{report.コード}）</p>
+                  <p className="text-sm">決算期: {report.決算期}</p>
                 </li>
               ))}
             </ul>

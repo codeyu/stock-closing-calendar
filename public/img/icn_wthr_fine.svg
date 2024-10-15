@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.943 18.943">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f22;
+      }
+    </style>
+  </defs>
+  <g id="グループ化_676" data-name="グループ化 676" transform="translate(-149.557 -737.681)">
+    <g id="グループ化_439" data-name="グループ化 439" transform="translate(149.557 737.681)">
+      <g id="グループ化_430" data-name="グループ化 430" transform="translate(4.357 4.357)">
+        <circle id="楕円形_1" data-name="楕円形 1" class="cls-1" cx="5.115" cy="5.115" r="5.115"/>
+      </g>
+      <g id="グループ化_431" data-name="グループ化 431" transform="translate(8.714)">
+        <rect id="長方形_1763" data-name="長方形 1763" class="cls-1" width="1.515" height="2.842"/>
+      </g>
+      <g id="グループ化_432" data-name="グループ化 432" transform="translate(8.714 16.102)">
+        <rect id="長方形_1764" data-name="長方形 1764" class="cls-1" width="1.515" height="2.842"/>
+      </g>
+      <g id="グループ化_433" data-name="グループ化 433" transform="translate(2.238 2.23)">
+        <rect id="長方形_1765" data-name="長方形 1765" class="cls-1" width="1.515" height="2.842" transform="translate(0 1.072) rotate(-45)"/>
+      </g>
+      <g id="グループ化_434" data-name="グループ化 434" transform="translate(13.601 13.603)">
+        <rect id="長方形_1766" data-name="長方形 1766" class="cls-1" width="1.515" height="2.842" transform="translate(0 1.072) rotate(-45)"/>
+      </g>
+      <g id="グループ化_435" data-name="グループ化 435" transform="translate(0 8.714)">
+        <rect id="長方形_1767" data-name="長方形 1767" class="cls-1" width="2.842" height="1.515"/>
+      </g>
+      <g id="グループ化_436" data-name="グループ化 436" transform="translate(16.102 8.714)">
+        <rect id="長方形_1768" data-name="長方形 1768" class="cls-1" width="2.842" height="1.515"/>
+      </g>
+      <g id="グループ化_437" data-name="グループ化 437" transform="translate(2.237 13.608)">
+        <rect id="長方形_1769" data-name="長方形 1769" class="cls-1" width="2.842" height="1.515" transform="translate(0 2.008) rotate(-44.968)"/>
+      </g>
+      <g id="グループ化_438" data-name="グループ化 438" transform="translate(13.601 2.224)">
+        <rect id="長方形_1770" data-name="長方形 1770" class="cls-1" width="2.842" height="1.515" transform="translate(0 2.01) rotate(-45.032)"/>
+      </g>
+    </g>
+  </g>
+</svg>
